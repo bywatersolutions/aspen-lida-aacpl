@@ -251,17 +251,6 @@ export const LoadingScreen = () => {
           onSuccess: (data) => {
                setProgress(80);
                updateLinkedAccounts(data.accounts);
-               setIsReloading(false);
-          },
-          onError: () => {
-               setHasError(true);
-          }
-     });
-
-     const { isSuccess: libraryCardsQuerySuccess, status: libraryCardsQueryStatus, data: libraryCardsQuery } = useQuery(['library_cards', user ?? [], cards ?? [], LIBRARY.url, 'en'], () => getLinkedAccounts(user ?? [], cards ?? [], library.barcodeStyle, LIBRARY.url, 'en'), {
-          enabled: hasError === false && linkedAccountQuerySuccess,
-          onSuccess: (data) => {
-               setProgress(90);
                updateLibraryCards(data.cards);
                setIsReloading(false);
           },
@@ -271,9 +260,9 @@ export const LoadingScreen = () => {
      });
 
      const { isSuccess: systemMessagesQuerySuccess, status: systemMessagesQueryStatus, data: systemMessagesQuery } = useQuery(['system_messages', LIBRARY.url], () => getSystemMessages(library.libraryId, location.locationId, LIBRARY.url), {
-          enabled: hasError === false && libraryCardsQuerySuccess,
+          enabled: hasError === false && linkedAccountQuerySuccess,
           onSuccess: (data) => {
-               setProgress(95);
+               setProgress(90);
                updateSystemMessages(data);
                setIsReloading(false);
           },
@@ -324,7 +313,6 @@ export const LoadingScreen = () => {
           languagesQueryStatus === 'loading' ||
           libraryBranchQueryStatus === 'loading' ||
           linkedAccountQueryStatus === 'loading' ||
-          libraryCardsQueryStatus === 'loading' ||
           systemMessagesQueryStatus === 'loading' ||
           appPreferencesQueryStatus === 'loading' ||
           notificationHistoryQueryStatus === 'loading'
