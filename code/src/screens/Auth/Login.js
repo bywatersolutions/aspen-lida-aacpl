@@ -192,7 +192,7 @@ export const LoginScreen = () => {
                     ) : null}
                     <Center>
                          <Text mt={5} fontSize="xs" _light={{ color: 'darkText' }} _dark={{ color: 'lightText' }}>
-                              {GLOBALS.appVersion} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel ?? 'Development'}]
+                              {GLOBALS.appVersion} {GLOBALS.appStage} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel ?? 'Development'}]
                          </Text>
                     </Center>
                </KeyboardAvoidingView>

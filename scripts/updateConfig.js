@@ -59,8 +59,6 @@ fs.readFile('../code/eas.json', 'utf8', function (err, data) {
 
 let versionAsInt = build['build'];
 versionAsInt = parseInt(versionAsInt, 10);
-let versionWithStage = version.version + ' ' + version.stage;
-versionWithStage = versionWithStage.trim();
 
 const app_config = {
      name: app['name'],
@@ -69,7 +67,7 @@ const app_config = {
      owner: owner['expoProjectOwner'],
      privacy: 'public',
      platforms: ['ios', 'android'],
-     version: versionWithStage,
+     version: version['version'],
      sdkVersion: '51.0.0',
      orientation: 'default',
      icon: app['discoveryUrl'] + 'API/SystemAPI?method=getLogoFile&themeId=' + app['themeId'] + '&type=appIcon&slug=' + app['slug'],
@@ -163,6 +161,7 @@ const app_config = {
           iosStoreUrl: 'itms-apps://apps.apple.com/id/app/' + app['slug'] + '/id' + app['ascAppId'],
           androidStoreUrl: 'market://details?id=' + app['reverseDns'],
           patch: version['patch'],
+          stage: version['stage'],
           logLevel: app['logLevel'],
      },
      plugins: [

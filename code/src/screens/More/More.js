@@ -87,7 +87,7 @@ export const MoreScreen = () => {
                     <Text mt={10} fontSize="xs" bold>
                          {getTermFromDictionary(language, 'app_name')}
                          <Text color="coolGray.600" _dark={{ color: 'warmGray.400' }}>
-                              {GLOBALS.appVersion} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel}]
+                              {GLOBALS.appVersion} {GLOBALS.appStage} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel}]
                          </Text>
                     </Text>
                     {library.discoveryVersion ? (

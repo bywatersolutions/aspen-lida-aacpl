@@ -59,6 +59,14 @@ export async function updateAspenLiDABuild(updateId, updateChannel, updateDate) 
      const greenhouseUrl = Constants.expoConfig.extra.greenhouseUrl;
      const iOSDist = Constants.expoConfig.ios.buildNumber;
      const androidDist = Constants.expoConfig.android.versionCode;
+     let patch = 0;
+     if (GLOBALS.appStage == ''){
+        patch = GLOBALS.appStage + " " + GLOBALS.appPatch;
+        patch = patch.trim();
+     }else{
+        patch = GLOBALS.appPatch;
+     }
+
 
      const api = create({
           baseURL: greenhouseUrl + 'API',
@@ -72,7 +80,7 @@ export async function updateAspenLiDABuild(updateId, updateChannel, updateDate) 
                channel: __DEV__ ? 'development' : updateChannel,
                platform: Platform.OS,
                id: updateId,
-               patch: GLOBALS.appPatch,
+               patch: patch,
                timestamp: updateDate,
           },
      });

@@ -16,6 +16,7 @@ export const GLOBALS = {
      appBuild: Platform.OS === 'android' ? androidDist : iOSDist,
      appSessionId: Constants.expoConfig.sessionid,
      appPatch: Constants.expoConfig.extra.patch,
+     appStage: Constants.expoConfig.extra.stage,
      showSelectLibrary: true,
      runGreenhouse: true,
      slug: Constants.expoConfig.slug,

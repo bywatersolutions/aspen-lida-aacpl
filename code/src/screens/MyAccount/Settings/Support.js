@@ -53,7 +53,7 @@ export const SupportScreen = () => {
                               {getTermFromDictionary(language, 'app_name')}
                          </Text>
                          <Text fontSize="xs" color="coolGray.600" _dark={{ color: 'warmGray.400' }}>
-                              {GLOBALS.appVersion} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel}]
+                              {GLOBALS.appVersion} {GLOBALS.appStage} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel}]
                          </Text>
                     </HStack>
                     <HStack justifyContent="space-between">

@@ -72,6 +72,7 @@ Sentry.init({
 });
 
 Sentry.setTag('patch', GLOBALS.appPatch);
+Sentry.setTag('stage', GLOBALS.appStage);
 
 export function App() {
      const queryClient = useQueryClient();
