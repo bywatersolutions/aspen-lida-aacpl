@@ -20,8 +20,8 @@ export default function TabNavigator() {
      const { enableSelfCheck } = React.useContext(LibraryBranchContext);
      const { colorMode, theme, textColor } = React.useContext(ThemeContext);
 
-     const activeIcon = colorMode === 'light' ? '$coolGray700' : '$coolGray300';
-     const inactiveIcon = colorMode === 'light' ? '$coolGray500' : '$coolGray400';
+     const activeIcon = colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['coolGray']['300'];
+     const inactiveIcon = colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['coolGray']['400'];
      const tabBarBackgroundColor = colorMode;
 
      return (
@@ -114,8 +114,8 @@ export const TabItem = ({ state, descriptors, navigation }) => {
      const { language } = React.useContext(LanguageContext);
      const { colorMode, theme, textColor } = React.useContext(ThemeContext);
 
-     const activeIcon = colorMode === 'light' ? '$coolGray700' : '$coolGray300';
-     const inactiveIcon = colorMode === 'light' ? '$coolGray500' : '$coolGray400';
+     const activeIcon = colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['coolGray']['300'];
+     const inactiveIcon = colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['coolGray']['400'];
      const tabBarBackgroundColor = colorMode;
 
      const [browseTabLabel, setBrowseTabLabel] = React.useState(getTermFromDictionary(language, 'nav_discover'));
@@ -193,7 +193,7 @@ export const TabItem = ({ state, descriptors, navigation }) => {
                          <Pressable key={index} accessibilityRole="button" accessibilityState={isFocused ? { selected: true } : {}} accessibilityLabel={options.tabBarAccessibilityLabel} testID={options.tabBarTestID} onPress={onPress} onLongPress={onLongPress}>
                               <VStack gap="$1" alignItems="center">
                                    <Ionicons name={iconName} size={22} color={color} />
-                                   <Text fontSize="$2xs" color={color} fontWeight="400">
+                                   <Text size="2xs" color={color} fontWeight="$normal">
                                         {dictionaryKey}
                                    </Text>
                               </VStack>
