@@ -9,10 +9,10 @@ TODO: Translate the accessibility labels
 export function loadingSpinner(message = '') {
      if (message !== '') {
           return (
-               <Center flex={1} px="$3">
+               <Center flex={1} px="3">
                     <VStack space="md" alignItems="center">
-                         <Spinner size="large" accessibilityLabel="Loading..." />
-                         <Heading size="md">{message}</Heading>
+                         <Spinner size="large" accessibilityLabel="Loading..." color={theme['colors']['primary']['500']}/>
+                         <Heading size="md" color={textColor}>{message}</Heading>
                     </VStack>
                </Center>
           );
@@ -26,7 +26,8 @@ export function loadingSpinner(message = '') {
           </Center>
      );
 }
-export const LoadingSpinner = (message) => {
+
+export const LoadingSpinner = ({ message = '' }) => {
      const { colorMode, theme, textColor } = React.useContext(ThemeContext);
      if (message && message !== '') {
           return (
