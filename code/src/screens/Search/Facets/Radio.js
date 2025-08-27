@@ -1,39 +1,35 @@
 import { Radio } from "native-base";
-import React, { Component } from "react";
+import React, { useState } from "react";
 
-export default class Facet_Radio extends Component {
-  constructor() {
-    super();
-    this.state = { checkedRadio: null };
-  }
+const Facet_Radio = ({ data, category }) => {
+  const [checkedRadio, setCheckedRadio] = useState(null);
 
-  changeRadio(e) {
-    this.setState({ checkedRadio: e.target.value });
-  }
+  const changeRadio = (e) => {
+    setCheckedRadio(e.target.value);
+  };
 
-  render() {
-    const { data, category } = this.props;
-    if (category !== "sort_by") {
-      const numOfResults = "(" + data.count + ")";
-      return (
-        <Radio
-          value={data.value}
-          accessibilityLabel={data.display}
-          name={category}
-        >
-          {data.display} {numOfResults}
-        </Radio>
-      );
-    }
+  if (category !== "sort_by") {
+    const numOfResults = "(" + data.count + ")";
     return (
       <Radio
         value={data.value}
         accessibilityLabel={data.display}
         name={category}
-        style={{ bg: "muted.300" }}
       >
-        {data.display}
+        {data.display} {numOfResults}
       </Radio>
     );
   }
-}
+  return (
+    <Radio
+      value={data.value}
+      accessibilityLabel={data.display}
+      name={category}
+      style={{ bg: "muted.300" }}
+    >
+      {data.display}
+    </Radio>
+  );
+};
+
+export default Facet_Radio;

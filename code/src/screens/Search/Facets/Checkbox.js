@@ -2,7 +2,7 @@ import { Checkbox, HStack, Pressable, Text } from 'native-base';
 import React from 'react';
 import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../../util/logging.js';
 
-export default function Facet_Checkbox({ data, category, values = [], updateCheckboxFacet }) {
+const Facet_Checkbox = ({ data, category, values = [], updateCheckboxFacet }) => {
      const isChecked = values.includes(data.value);
      const handleChange = (newValue) => {
           logDebugMessage("Clicked on " + data.value + " isChecked is " + isChecked + " newValue is " + newValue);
@@ -28,4 +28,6 @@ export default function Facet_Checkbox({ data, category, values = [], updateChec
                </Checkbox>
           </HStack>
      );
-}
+};
+
+export default Facet_Checkbox;

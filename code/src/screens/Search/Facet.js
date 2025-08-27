@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Box, Button, Center, Checkbox, ChevronLeftIcon, Input, Pressable, View } from 'native-base';
-import React, { Component } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 
 // custom components and helper files
 import { ScrollView } from 'react-native';
@@ -19,56 +19,72 @@ import Facet_Year from './Facets/Year';
 import { UnsavedChangesExit } from './UnsavedChanges';
 import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../util/logging.js';
 
-export default class Facet extends Component {
-     static contextType = userContext;
+const Facet = ({ route, navigation }) => {
+     const user = useContext(userContext);
+     const _isMounted = useRef(false);
 
-     constructor(props, context) {
-          super(props, context);
-          this.state = {
-               isLoading: true,
-               term: this.props.route.params?.term,
-               data: this.props.route.params?.data ?? [],
-               title: this.props.route.params?.extra['label'] ?? 'Filter',
-               facets: this.props.route.params?.facets ?? [],
-               facetsOriginal: this.props.route.params?.facets ?? [],
-               numFacets: 0,
-               category: this.props.route.params?.extra['field'] ?? '',
-               applied: [],
-               multiSelect: Boolean(this.props.route.params?.extra['multiSelect']),
-               pendingFilters: SEARCH.pendingFilters,
-               filterByQuery: '',
-               hasPendingChanges: false,
-               showWarning: false,
-               isUpdating: false,
-               resetOptions: false,
-               values: [],
-               pending: [],
-               valuesDefault: [],
-               language: this.props.route.params?.language ?? 'en',
-          };
-          this._isMounted = false;
-     }
+     const [isLoading, setIsLoading] = useState(true);
+     const [term] = useState(route.params?.term);
+     const [data] = useState(route.params?.data ?? []);
+     const [title] = useState(route.params?.extra['label'] ?? 'Filter');
+     const [facets, setFacets] = useState(route.params?.facets ?? []);
+     const [facetsOriginal] = useState(route.params?.facets ?? []);
+     const [numFacets, setNumFacets] = useState(0);
+     const [category] = useState(route.params?.extra['field'] ?? '');
+     const [applied, setApplied] = useState([]);
+     const [multiSelect] = useState(Boolean(route.params?.extra['multiSelect']));
+     const [pendingFilters] = useState(SEARCH.pendingFilters);
+     const [filterByQuery, setFilterByQuery] = useState('');
+     const [hasPendingChanges, setHasPendingChanges] = useState(false);
+     const [showWarning, setShowWarning] = useState(false);
+     const [isUpdating, setIsUpdating] = useState(false);
+     const [resetOptions, setResetOptions] = useState(false);
+     const [values, setValues] = useState([]);
+     const [pending, setPending] = useState([]);
+     const [valuesDefault, setValuesDefault] = useState([]);
+     const [language] = useState(route.params?.language ?? 'en');
 
-     componentDidMount = async () => {
-          this._isMounted = true;
-
-          const data = _.filter(SEARCH.availableFacets, ['field', this.state.category]);
-          if (data[0]) {
-               this.setState({
-                    facets: data[0]['facets'],
-                    numFacets: _.size(data[0]['facets']),
-               });
-          }
-
-          this.preselectValues();
-
-          this.setState({
-               isLoading: false,
+     const preselectValues = () => {
+          let newValues = [];
+          const cluster = _.filter(SEARCH.pendingFilters, ['field', category]);
+          _.map(cluster, function (item, index, collection) {
+               const facets = item['facets'];
+               if (_.size(facets) > 0) {
+                    _.forEach(facets, function (value, key) {
+                         if (multiSelect) {
+                              newValues = _.concat(newValues, value);
+                         } else {
+                              newValues = value;
+                         }
+                    });
+               }
           });
+          setValues(newValues);
+          setValuesDefault(newValues);
      };
 
-     componentDidUpdate(prevProps, prevState) {
-          const { navigation } = this.props;
+     useEffect(() => {
+          _isMounted.current = true;
+
+          const initData = async () => {
+               const data = _.filter(SEARCH.availableFacets, ['field', category]);
+               if (data[0]) {
+                    setFacets(data[0]['facets']);
+                    setNumFacets(_.size(data[0]['facets']));
+               }
+
+               preselectValues();
+               setIsLoading(false);
+          };
+
+          initData();
+
+          return () => {
+               _isMounted.current = false;
+          };
+     }, []);
+
+     useEffect(() => {
           const routes = navigation.getState()?.routes;
           const prevRoute = routes[routes.length - 2];
           if (prevRoute) {
@@ -77,8 +93,8 @@ export default class Facet extends Component {
                          <Pressable
                               mr={3}
                               onPress={() => {
-                                   this.updateGlobal();
-                                   this.props.navigation.navigate('Filters', {
+                                   updateGlobal();
+                                   navigation.navigate('Filters', {
                                         pendingFilters: SEARCH.pendingFilters,
                                    });
                               }}
@@ -86,46 +102,38 @@ export default class Facet extends Component {
                               <ChevronLeftIcon size={5} color="primary.baseContrast" />
                          </Pressable>
                     ),
-                    headerRight: () => <UnsavedChangesExit updateSearch={this.updateSearch} discardChanges={this.discardChanges} updateGlobal={this.updateGlobal} prevRoute="Filters" language={this.state.language} />,
+                    headerRight: () => <UnsavedChangesExit updateSearch={updateSearch} discardChanges={discardChanges} updateGlobal={updateGlobal} prevRoute="Filters" language={language} />,
                });
           } else {
                navigation.setOptions({
                     headerLeft: () => <Box />,
-                    headerRight: () => <UnsavedChangesExit updateSearch={this.updateSearch} discardChanges={this.discardChanges} prevRoute="Filters" language={this.state.language} />,
+                    headerRight: () => <UnsavedChangesExit updateSearch={updateSearch} discardChanges={discardChanges} prevRoute="Filters" language={language} />,
                });
           }
-     }
+     });
 
-     componentWillUnmount() {
-          this._isMounted = false;
-     }
-
-     async filterFacets() {
-          await searchAvailableFacets(this.state.category, this.state.title, this.state.filterByQuery, LIBRARY.url, this.state.language).then((result) => {
+     const filterFacets = async () => {
+          await searchAvailableFacets(category, title, filterByQuery, LIBRARY.url, language).then((result) => {
                if (result.success === false) {
-                    this.setState({
-                         isLoading: false,
-                    });
+                    setIsLoading(false);
                } else {
-                    this.setState({
-                         facets: result['facets'],
-                         numFacets: _.size(result['facets']),
-                         isLoading: false,
-                    });
+                    setFacets(result['facets']);
+                    setNumFacets(_.size(result['facets']));
+                    setIsLoading(false);
                }
           });
-     }
+     };
 
-     searchBar = () => {
-          const placeHolder = getTermFromDictionary(this.state.language, 'search') + ' ' + this.state.title;
+     const searchBar = () => {
+          const placeHolder = getTermFromDictionary(language, 'search') + ' ' + title;
           /* always display the search bar */
-          if (this.state.numFacets >= 0) {
+          if (numFacets >= 0) {
                return (
                     <Box safeArea={5}>
                          <Input
-                              value={this.state.filterByQuery}
+                              value={filterByQuery}
                               name="filterSearchBar"
-                              onChangeText={(filterByQuery) => this.setState({ filterByQuery })}
+                              onChangeText={(filterByQuery) => setFilterByQuery(filterByQuery)}
                               size="lg"
                               autoCorrect={false}
                               variant="outline"
@@ -140,10 +148,8 @@ export default class Facet extends Component {
                                    borderWidth: 1
                               } }}
                               onSubmitEditing={async () => {
-                                   this.setState({
-                                        isLoading: true,
-                                   });
-                                   await this.filterFacets();
+                                   setIsLoading(true);
+                                   await filterFacets();
                               }}
                          />
                     </Box>
@@ -153,33 +159,10 @@ export default class Facet extends Component {
           }
      };
 
-     preselectValues = () => {
-          let values = [];
-          const { category, multiSelect } = this.state;
-          const cluster = _.filter(SEARCH.pendingFilters, ['field', category]);
-          _.map(cluster, function (item, index, collection) {
-               const facets = item['facets'];
-               if (_.size(facets) > 0) {
-                    _.forEach(facets, function (value, key) {
-                         if (multiSelect) {
-                              values = _.concat(values, value);
-                         } else {
-                              values = value;
-                         }
-                    });
-               }
-          });
-          this.setState({
-               values,
-               valuesDefault: values,
-          });
-     };
-
-     updateSearch = (resetFacetGroup = false, toFilters = false) => {
+     const updateSearch = (resetFacetGroup = false, toFilters = false) => {
           const params = buildParamsForUrl();
           //console.log(params);
           SEARCH.hasPendingChanges = false;
-          const { navigation } = this.props;
           if (toFilters) {
                navigation.navigate('Filters', {
                     term: SEARCH.term,
@@ -192,82 +175,71 @@ export default class Facet extends Component {
           }
      };
 
-     updateCheckboxFacet = (group, value, newValue) => {
+     const updateCheckboxFacet = (group, value, newValue) => {
           logDebugMessage("Updating facet " + group + " with value " + value + " to " + newValue);
-          logDebugMessage("Existing values are " + this.state.values);
-          let newValues = this.state.values;
+          logDebugMessage("Existing values are " + values);
+          let newValues = values;
           if (newValue) {
-               newValues = [...this.state.values, value];
+               newValues = [...values, value];
           }else{
                newValues = newValues.filter(n=>n !== value)
           }
           logDebugMessage("Updated values are " + newValues);
-          this.setState({
-               values:newValues,
-          });
+          setValues(newValues);
           SEARCH.hasPendingChanges = true;
-          this.updateGlobal(group, newValues);
-     }
-
-     updateLocalValues = (group, values) => {
-          this.setState({
-               values,
-          });
-          logDebugMessage("Updating local values for " + group + " with values " + values);
-          SEARCH.hasPendingChanges = true;
-          this.updateGlobal(group, values);
+          updateGlobal(group, newValues);
      };
 
-     updateGlobal = (group, values) => {
-          logDebugMessage("Updating global values for " + group + " with values " + values);
-          const multiSelect = this.state.multiSelect;
-          const prevSelections = this.state.values;
-          addAppliedFilter(group, values, multiSelect);
+     const updateLocalValues = (group, newValues) => {
+          setValues(newValues);
+          logDebugMessage("Updating local values for " + group + " with values " + newValues);
+          SEARCH.hasPendingChanges = true;
+          updateGlobal(group, newValues);
+     };
+
+     const updateGlobal = (group, newValues) => {
+          logDebugMessage("Updating global values for " + group + " with values " + newValues);
+          const prevSelections = values;
+          addAppliedFilter(group, newValues, multiSelect);
           if (multiSelect) {
-               const difference = _.difference(prevSelections, values);
+               const difference = _.difference(prevSelections, newValues);
                if (difference) {
                     removeAppliedFilter(group, difference);
                }
           }
      };
 
-     discardChanges = () => {
+     const discardChanges = () => {
           SEARCH.hasPendingChanges = true;
-          const { values, category, valuesDefault } = this.state;
           const difference = _.difference(values, valuesDefault);
           if (difference) {
                removeAppliedFilter(category, difference);
           }
-          this.setState({
-               values: [],
-          });
+          setValues([]);
      };
 
-     resetCluster = () => {
+     const resetCluster = () => {
           SEARCH.hasPendingChanges = true;
-          const { values, category } = this.state;
           removeAppliedFilter(category, values);
-          this.setState({
-               values: [],
-          });
-          this.updateSearch();
+          setValues([]);
+          updateSearch();
      };
 
-     actionButtons = () => {
+     const actionButtons = () => {
           return (
                <Box safeArea={3} _light={{ bg: 'coolGray.50' }} _dark={{ bg: 'coolGray.700' }} shadow={1}>
                     <Center>
                          <Button.Group size="lg">
-                              <Button variant="unstyled" onPress={() => this.resetCluster()}>
-                                   {getTermFromDictionary(this.state.language, 'reset')}
+                              <Button variant="unstyled" onPress={() => resetCluster()}>
+                                   {getTermFromDictionary(language, 'reset')}
                               </Button>
                               <Button
-                                   isLoading={this.state.isUpdating}
-                                   isLoadingText={getTermFromDictionary(this.state.language, 'updating', true)}
+                                   isLoading={isUpdating}
+                                   isLoadingText={getTermFromDictionary(language, 'updating', true)}
                                    onPress={() => {
-                                        this.updateSearch();
+                                        updateSearch();
                                    }}>
-                                   {getTermFromDictionary(this.state.language, 'update')}
+                                   {getTermFromDictionary(language, 'update')}
                               </Button>
                          </Button.Group>
                     </Center>
@@ -275,99 +247,97 @@ export default class Facet extends Component {
           );
      };
 
-     render() {
-          const { facets, category, multiSelect } = this.state;
-
-          if (this.state.isLoading) {
-               return <LoadingSpinner />;
-          }
-
-          if (category === 'publishDate' || category === 'birthYear' || category === 'deathYear' || category === 'publishDateSort') {
-               return (
-                    <View style={{ flex: 1 }}>
-                         <ScrollView>
-                              <Box safeArea={5}>
-                                   <Facet_Year category={category} updater={this.updateLocalValues} data={facets} language={this.state.language} />
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          } else if (category === 'start_date') {
-               return (
-                    <View style={{ flex: 1 }}>
-                         <ScrollView>
-                              <Box safeArea={5}>
-                                   <Facet_Date category={category} updater={this.updateLocalValues} data={facets} />
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          } else if (category === 'rating_facet') {
-               return (
-                    <View style={{ flex: 1 }}>
-                         <ScrollView>
-                              <Box safeArea={5}>
-                                   <Facet_Rating category={category} updater={this.updateLocalValues} data={facets} />
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          } else if (category === 'lexile_score' || category === 'accelerated_reader_point_value' || category === 'accelerated_reader_reading_level') {
-               return (
-                    <View style={{ flex: 1 }}>
-                         <ScrollView>
-                              <Box safeArea={5}>
-                                   <Facet_Slider category={category} data={facets} updater={this.updateLocalValues} language={this.state.language} />
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          } else if (multiSelect) {
-               //console.log("Showing Multi-Select facet");
-               //console.log(facets);
-               return (
-                    <View style={{ flex: 1 }}>
-                         {this.searchBar()}
-                         <ScrollView>
-                              <Box safeAreaX={5}>
-                                   <Checkbox.Group
-                                        name={category}
-                                        value={this.state.values}
-                                        accessibilityLabel={getTermFromDictionary(this.state.language, 'filter_by')}
-                                        >
-                                        {facets.map((item, index) => {
-                                             return <Facet_Checkbox
-                                                  key={index}
-                                                  data={item}
-                                                  language={this.state.language}
-                                                  updateCheckboxFacet={this.updateCheckboxFacet}
-                                                  category={category}
-                                                  values={this.state.values}
-                                                  />;
-                                        })}
-
-                                   </Checkbox.Group>
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          } else {
-               return (
-                    <View style={{ flex: 1 }}>
-                         {this.searchBar()}
-                         <ScrollView>
-                              <Box safeAreaX={5}>
-                                   <Facet_RadioGroup data={facets} category={category} title={this.state.title} applied={this.state.values} updater={this.updateLocalValues} language={this.state.language} />
-                              </Box>
-                         </ScrollView>
-                         {this.actionButtons()}
-                    </View>
-               );
-          }
+     if (isLoading) {
+          return <LoadingSpinner />;
      }
-}
+
+     if (category === 'publishDate' || category === 'birthYear' || category === 'deathYear' || category === 'publishDateSort') {
+          return (
+               <View style={{ flex: 1 }}>
+                    <ScrollView>
+                         <Box safeArea={5}>
+                              <Facet_Year category={category} updater={updateLocalValues} data={facets} language={language} />
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     } else if (category === 'start_date') {
+          return (
+               <View style={{ flex: 1 }}>
+                    <ScrollView>
+                         <Box safeArea={5}>
+                              <Facet_Date category={category} updater={updateLocalValues} data={facets} />
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     } else if (category === 'rating_facet') {
+          return (
+               <View style={{ flex: 1 }}>
+                    <ScrollView>
+                         <Box safeArea={5}>
+                              <Facet_Rating category={category} updater={updateLocalValues} data={facets} />
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     } else if (category === 'lexile_score' || category === 'accelerated_reader_point_value' || category === 'accelerated_reader_reading_level') {
+          return (
+               <View style={{ flex: 1 }}>
+                    <ScrollView>
+                         <Box safeArea={5}>
+                              <Facet_Slider category={category} data={facets} updater={updateLocalValues} language={language} />
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     } else if (multiSelect) {
+          //console.log("Showing Multi-Select facet");
+          //console.log(facets);
+          return (
+               <View style={{ flex: 1 }}>
+                    {searchBar()}
+                    <ScrollView>
+                         <Box safeAreaX={5}>
+                              <Checkbox.Group
+                                   name={category}
+                                   value={values}
+                                   accessibilityLabel={getTermFromDictionary(language, 'filter_by')}
+                                   >
+                                   {facets.map((item, index) => {
+                                        return <Facet_Checkbox
+                                             key={index}
+                                             data={item}
+                                             language={language}
+                                             updateCheckboxFacet={updateCheckboxFacet}
+                                             category={category}
+                                             values={values}
+                                             />;
+                                   })}
+
+                              </Checkbox.Group>
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     } else {
+          return (
+               <View style={{ flex: 1 }}>
+                    {searchBar()}
+                    <ScrollView>
+                         <Box safeAreaX={5}>
+                              <Facet_RadioGroup data={facets} category={category} title={title} applied={values} updater={updateLocalValues} language={language} />
+                         </Box>
+                    </ScrollView>
+                    {actionButtons()}
+               </View>
+          );
+     }
+};
+
+export default Facet;
