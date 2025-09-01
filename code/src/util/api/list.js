@@ -268,14 +268,17 @@ export async function removeTitlesFromList(listId, title, url, source) {
      }
 }
 
-export async function deleteList(listId, url) {
+export async function deleteList(listId, url, optOutOfSoftDeletion = false) {
      const postBody = await postData();
      const api = create({
           baseURL: url + '/API',
           timeout: GLOBALS.timeoutAverage,
           headers: getHeaders(true),
           auth: createAuthTokens(),
-          params: { id: listId },
+          params: {
+               id: listId,
+               optOutOfSoftDeletion: optOutOfSoftDeletion
+          },
      });
      const response = await api.post('/ListAPI?method=deleteList', postBody);
      //console.log(response);

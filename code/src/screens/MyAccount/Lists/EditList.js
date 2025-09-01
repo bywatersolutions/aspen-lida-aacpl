@@ -28,6 +28,11 @@ import {
      FormControl,
      FormControlLabel,
      FormControlLabelText, AlertDialogBackdrop, AlertDialogCloseButton, AlertDialogHeader, ButtonIcon,
+     Checkbox,
+     CheckboxIndicator,
+     CheckboxIcon,
+     CheckboxLabel,
+     CheckIcon,
 } from '@gluestack-ui/themed';
 
 const EditList = (props) => {
@@ -165,6 +170,7 @@ const DeleteList = (props) => {
      const { language } = React.useContext(LanguageContext);
      const [isOpen, setIsOpen] = React.useState(false);
      const [loading, setLoading] = useState(false);
+     const [optOutOfSoftDeletion, setOptOutOfSoftDeletion] = useState(false);
      const onClose = () => setIsOpen(false);
      const cancelRef = React.useRef(null);
 
@@ -178,31 +184,46 @@ const DeleteList = (props) => {
                     <AlertDialogBackdrop />
                     <AlertDialogContent bgColor={colorMode === 'light' ? theme['colors']['warmGray']['50'] : theme['colors']['coolGray']['700']}>
                          <AlertDialogHeader>
-                              <Heading size="md" color={textColor}>Delete List</Heading>
+                              <Heading size="md" color={textColor}>{getTermFromDictionary(language, 'delete_list')}</Heading>
                               <AlertDialogCloseButton>
                                    <Icon as={CloseIcon} color={textColor} />
                               </AlertDialogCloseButton>
                          </AlertDialogHeader>
-                         <AlertDialogBody><Text color={textColor}>Are you sure you want to delete this list?</Text></AlertDialogBody>
+                         <AlertDialogBody>
+                              <Text color={textColor}>{getTermFromDictionary(language, 'delete_list_confirmation')}</Text>
+                              <FormControl pt="$3">
+                                   <Checkbox
+                                        value="optOut"
+                                        isChecked={optOutOfSoftDeletion}
+                                        onChange={(isChecked) => setOptOutOfSoftDeletion(isChecked)}
+                                        alignItems="center"
+                                   >
+                                        <CheckboxIndicator mr="$2" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']}>
+                                             <CheckboxIcon as={CheckIcon} color={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']} />
+                                        </CheckboxIndicator>
+                                        <CheckboxLabel color={textColor}>{getTermFromDictionary(language, 'opt_out_soft_deletion')}</CheckboxLabel>
+                                   </Checkbox>
+                              </FormControl>
+                         </AlertDialogBody>
                          <AlertDialogFooter>
                               <ButtonGroup space="sm">
                                    <Button variant="link" onPress={onClose} ref={cancelRef}>
-                                        <ButtonText color={textColor}>Cancel</ButtonText>
+                                        <ButtonText color={textColor}>{getTermFromDictionary(language, 'cancel')}</ButtonText>
                                    </Button>
                                    <Button
                                         bgColor={theme['colors']['danger']['500']}
                                         isLoading={loading}
-                                        isLoadingText="Deleting..."
+                                        isLoadingText={getTermFromDictionary(language, 'deleting', true)}
                                         onPress={() => {
                                              setLoading(true);
-                                             deleteList(listId, library.baseUrl).then(async (res) => {
+                                             deleteList(listId, library.baseUrl, optOutOfSoftDeletion).then(async (res) => {
                                                   queryClient.invalidateQueries({ queryKey: ['lists', user.id, library.baseUrl, language] });
                                                   queryClient.invalidateQueries({ queryKey: ['user', library.baseUrl, language] });
                                                   setLoading(false);
                                                   let status = 'success';
                                                   setIsOpen(!isOpen);
                                                   if (res.success === false) {
-                                                       status = 'danger';
+                                                       status = 'error';
                                                        popAlert(res.title, res.message, status);
                                                   } else {
                                                        popAlert(res.title, res.message, status);
@@ -213,7 +234,7 @@ const DeleteList = (props) => {
                                                   }
                                              });
                                         }}>
-                                        <ButtonText color={theme['colors']['white']}>Delete</ButtonText>
+                                        <ButtonText color={theme['colors']['white']}>{getTermFromDictionary(language, 'delete')}</ButtonText>
                                    </Button>
                               </ButtonGroup>
                          </AlertDialogFooter>
