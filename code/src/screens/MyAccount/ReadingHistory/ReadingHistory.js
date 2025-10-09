@@ -217,9 +217,10 @@ export const MyReadingHistory = () => {
      const search = async () => {
           logDebugMessage('updateSearchTerm for reading history: ' + filter);
           setLoading(true);
+          setPage(1);
           setSearchTerm(filter);
-          await queryClient.invalidateQueries({ queryKey: ['reading_history', user.id, library.baseUrl, page, sort, searchTerm] });
-          await queryClient.refetchQueries({ queryKey: ['reading_history', user.id, library.baseUrl, page, sort, filter] });
+          await queryClient.invalidateQueries({ queryKey: ['reading_history', user.id, library.baseUrl, 1, sort, searchTerm] });
+          await queryClient.refetchQueries({ queryKey: ['reading_history', user.id, library.baseUrl, 1, sort, filter] });
           setLoading(false);
      }
 
@@ -251,7 +252,7 @@ export const MyReadingHistory = () => {
                               </ListItem.Content>
                          </>
                     }
-                    isExpanded={expanded}
+                    isExpanded={expanded}ƒ
                     icon={<Icon as={ChevronDownIcon} color={textColor} />}
                     onPress={() => {
                          setExpanded(!expanded);
