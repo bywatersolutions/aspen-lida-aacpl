@@ -12,6 +12,7 @@ import { getTermFromDictionary } from '../translations/TranslationService';
 import * as Sentry from '@sentry/react-native';
 
 import { GLOBALS } from './globals';
+import { logErrorMessage } from './logging';
 
 // polyfill for base64 (required for authentication)
 if (!global.btoa) {
@@ -245,9 +246,8 @@ export function getResponseCode(payload) {
                data: payload.data,
           };
      } else {
-          //console.log(payload);
+          logErrorMessage(payload);
           const problem = problemCodeMap(payload.problem);
-          //popToast(problem.title, problem.message, "warning");
           return {
                success: false,
                config: payload.config,
