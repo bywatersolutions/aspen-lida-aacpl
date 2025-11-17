@@ -20,6 +20,8 @@ export const LIBRARY = {
      languages: [],
      vdx: [],
      localIll: [],
+     id: 0,
+     version: null,
 };
 
 export const BRANCH = {
@@ -186,12 +188,22 @@ export async function getLocalIllForm(url, id) {
 }
 
 export function formatDiscoveryVersion(payload) {
+     if(LIBRARY.version) {
+          return LIBRARY.version;
+     }
      try {
-          const result = payload.split(' ');
-          if (_.isObject(result)) {
-               LIBRARY.version = result[0];
-               return result[0];
+          if (payload === undefined) {
+               logWarnMessage("Could not load discovery version, the version was undefined.");
+               LIBRARY.version = 'unknown';
+               return 'unknown';
+          }else{
+               const result = payload.split(' ');
+               if (_.isObject(result)) {
+                    LIBRARY.version = result[0];
+                    return result[0];
+               }
           }
+
      } catch (e) {
           logErrorMessage(e)
      }
