@@ -166,7 +166,7 @@ export const LoginScreen = () => {
                     }
 
                     if (result.catalogRegistrationCapabilities) {
-                              if(String(result.catalogRegistrationCapabilities.enableSelfRegistration) === '1' && String(result.catalogRegistrationCapabilities.enableSelfRegistrationInApp === '1')) {
+                              if(String(result.catalogRegistrationCapabilities.enableSelfRegistration) === '1' && String(result.catalogRegistrationCapabilities.enableSelfRegistrationInApp) === '1') {
                                    setEnableSelfRegistration(1);
                               } else {
                                    setEnableSelfRegistration(0);
