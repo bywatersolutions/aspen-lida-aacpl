@@ -314,7 +314,9 @@ export const getCheckedOutTo = (props) => {
 export const getDueDate = (date) => {
      const { language } = React.useContext(LanguageContext);
      if (date && date !== 0) {
-          const dueDate = moment.unix(date);
+          //offset is in minutes we multiple 60 to get seconds
+          const timezoneOffset = new Date().getTimezoneOffset() * 60;
+          const dueDate = moment.unix(date - timezoneOffset);
           const itemDueOn = moment(dueDate).format('MMM D, YYYY');
           return (
                <Text
