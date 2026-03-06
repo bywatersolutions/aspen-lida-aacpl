@@ -17,7 +17,7 @@ env:
   API_KEY_5: ${{ secrets.API_KEY_5 }}
   EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
   EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-  EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+  EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
   EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
   ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
           API_KEY_5: ${{ secrets.API_KEY_5 }}
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-          EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
           ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -76,7 +76,7 @@ jobs:
           check_secret "API_KEY_5" "$API_KEY_5"
           check_secret "EXPO_TOKEN" "$EXPO_TOKEN"
           check_secret "EXPO_APPLE_ID" "$EXPO_APPLE_ID"
-          check_secret "EXPO_APPLE_PASSWORD" "$EXPO_APPLE_PASSWORD"
+          check_secret "EXPO_APPLE_APP_SPECIFIC_PASSWORD" "$EXPO_APPLE_PASSWORD"
           check_secret "EXPO_TEAM_ID" "$EXPO_TEAM_ID"
           check_secret "ASC_APP_ID" "$ASC_APP_ID"
           check_secret "SENTRY_AUTH_TOKEN" "$SENTRY_AUTH_TOKEN"
