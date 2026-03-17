@@ -1,0 +1,15 @@
+{
+  "name": "Anne Arundel Public Library",
+  "slug": "aacpl",
+  "easId": "7a24b3d2-c404-4fe7-a89d-709e7f32b705",
+  "reverseDns": "org.aspendiscovery.aacpl",
+  "discoveryUrl": "https://catalog.aacpl.net/",
+  "greenhouseUrl": "https://catalog.aacpl.net/",
+  "libraryId": "1",
+  "themeId": "1",
+  "background": "#ffffff",
+  "sentryProject": "aspen-lida-aacpl",
+  "sentryDsn": "https://2732ae5e3635cfe6a08c0f72f12872d8@o994439.ingest.us.sentry.io/4508478169350144",
+  "ascAppId": "6739499339",
+  "logLevel": "0"
+}
